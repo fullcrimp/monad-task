@@ -1,44 +1,40 @@
-const SHIFT_LIST = [
-  [2, 1], [2, -1], [-2, 1], [-2, -1],
-  [1, 2], [1, -2], [-1, 2], [-1, -2]
-]
+/****************************************************************************/
+/*                       VERSION FOR SLOWPOKES AS ME                        */
+/****************************************************************************/
 
 module.exports = function canReach(startPos, finalPos, steps) {
 
-  // no move implied
-  if (!steps && equal(startPos, finalPos)) {
-    return true
+  let posArr = [startPos]
+
+  while (steps--) {
+    posArr = cleanFromForbiddenMoves(getNextPosArr(posArr))
   }
-
-  steps--
-
-  for (let nextShiftNum = 0; nextShiftNum < SHIFT_LIST.length; nextShiftNum++) {
-    let nextShift = SHIFT_LIST[nextShiftNum], // shims
-        nextPos = [
-          startPos[0] + nextShift[0],
-          startPos[1] + nextShift[1]
-        ]
-
-    // impossible shift
-    if (nextPos[0] < 0 || nextPos[0] > 8 || nextPos[1] < 0 || nextPos[1] > 8) {
-      continue
-    }
-
-    // success condition
-    if (steps === 0 && equal(nextPos, finalPos)) {
-      return true
-    }
-
-    // recursive call
-    if (steps > 0 && canReach(nextPos, finalPos, steps)) {
-      return true
-    }
-  }
-  return false
+  return posArr.some(function (pos) {
+    return equal(pos, finalPos)
+  })
 }
 
 function equal(firstArr, secondArr) {
-  return firstArr.every((element, i) => {
+  return firstArr.every(function (element, i) {
     return firstArr[i] === secondArr[i]
+  })
+}
+
+function getNextPosArr(posArr) {
+  const moves = [
+    [2, 1], [2, -1], [-2, 1], [-2, -1],
+    [1, 2], [1, -2], [-1, 2], [-1, -2]
+  ]
+  let posArrOfArr = posArr.map(function (pos) {
+    return moves.map(function (shift) {
+      return [pos[0] + shift[0], pos[1] + shift[1]]
+    })
+  })
+  return [].concat(...posArrOfArr)
+}
+
+function cleanFromForbiddenMoves(posArr) {
+  return posArr.filter(function (pos) {
+    return pos[0] > 0 && pos[0] < 9 && pos[1] > 0 && pos[1] < 9
   })
 }
